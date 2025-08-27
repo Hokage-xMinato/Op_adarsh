@@ -1,0 +1,1271 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔴 RolexCoderZ Live</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0d0d0d;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(255, 0, 60, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(0, 150, 255, 0.15) 0%, transparent 50%),
+                linear-gradient(135deg, #0d0d0d 0%, #1a0f1a 50%, #0f0f1a 100%);
+            z-index: -2;
+        }
+
+        .streaming-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, #fff 2px, #fff 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, #fff 2px, #fff 4px);
+            animation: scanlines 8s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(20px); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .live-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255, 0, 60, 0.2);
+            border: 2px solid #ff003c;
+            border-radius: 50px;
+            padding: 0.6rem 1.5rem;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(15px);
+            animation: livePulse 2s infinite;
+        }
+
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            background: #ff003c;
+            border-radius: 50%;
+            margin-right: 0.8rem;
+            box-shadow: 0 0 15px rgba(255, 0, 60, 0.8);
+            animation: blink 1s infinite alternate;
+        }
+
+        .main-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff003c 0%, #ff4d6d 30%, #00d4ff 70%, #4dabff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 30px rgba(255, 0, 60, 0.3);
+        }
+
+        .stream-subtitle {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+
+        .stream-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1rem 1.5rem;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 0.3rem;
+        }
+
+        .live-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 3rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 25px;
+            padding: 8px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 1rem 2rem;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #ff003c, #ff4d6d);
+            color: white;
+            box-shadow: 0 0 25px rgba(255, 0, 60, 0.4);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .stream-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stream-card {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 1.2rem;
+            position: relative;
+            backdrop-filter: blur(15px);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUp 0.8s ease forwards;
+        }
+
+        .stream-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(255, 0, 60, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .live-card:hover {
+            box-shadow: 0 20px 40px rgba(255, 0, 60, 0.25);
+        }
+
+        .stream-badge {
+            position: absolute;
+            top: -8px;
+            right: 15px;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            z-index: 2;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .live-badge-red {
+            background: linear-gradient(135deg, #ff003c, #ff4d6d);
+            box-shadow: 0 0 20px rgba(255, 0, 60, 0.5);
+        }
+
+        .live-badge-blue {
+            background: linear-gradient(135deg, #0066ff, #4d8cff);
+            box-shadow: 0 0 20px rgba(0, 100, 255, 0.4);
+        }
+
+        .live-badge-green {
+            background: linear-gradient(135deg, #00cc66, #4dff8c);
+            box-shadow: 0 0 20px rgba(0, 200, 100, 0.4);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        .card-thumbnail {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            height: 180px;
+            margin-bottom: 1.2rem;
+        }
+
+        .card-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .stream-card:hover .card-thumbnail img {
+            transform: scale(1.1);
+        }
+
+        .stream-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stream-card:hover .stream-overlay {
+            opacity: 1;
+        }
+
+        .play-button {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .stream-card:hover .play-button {
+            transform: scale(1);
+        }
+
+        .play-icon {
+            font-size: 1.5rem;
+        }
+
+        .stream-info {
+            text-align: center;
+        }
+
+        .stream-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .channel-name {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .stream-btn {
+            display: inline-block;
+            padding: 0.8rem 1.8rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            text-align: center;
+        }
+
+        .live-btn {
+            background: linear-gradient(135deg, #ff003c, #ff4d6d);
+            color: white;
+            border: 2px solid transparent;
+        }
+
+        .live-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 0, 60, 0.4);
+            color: white;
+        }
+
+        .upcoming-btn {
+            background: linear-gradient(135deg, #0066ff, #4d8cff);
+            color: white;
+        }
+
+        .upcoming-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 100, 255, 0.4);
+            color: white;
+        }
+
+        .completed-btn {
+            background: linear-gradient(135deg, #00cc66, #4dff8c);
+            color: white;
+        }
+
+        .completed-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 200, 100, 0.4);
+            color: white;
+        }
+
+        .btn-shine {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .stream-btn:hover .btn-shine {
+            left: 100%;
+        }
+
+        .no-content {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            margin: 2rem 0;
+        }
+
+        .status-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .no-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .no-content p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1rem;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #ff003c;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1.5rem;
+        }
+
+        .loading-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        @keyframes livePulse {
+            0%, 100% { 
+                box-shadow: 0 0 0 0 rgba(255, 0, 60, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(255, 0, 60, 0);
+            }
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .main-title {
+                font-size: 2.5rem;
+            }
+
+            .stream-stats {
+                gap: 1rem;
+            }
+
+            .stat-item {
+                padding: 0.8rem 1rem;
+            }
+
+            .live-tabs {
+                padding: 6px;
+            }
+
+            .tab-btn {
+                padding: 0.8rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .stream-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .stream-card {
+                padding: 1rem;
+            }
+
+            .card-thumbnail {
+                height: 160px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="streaming-bg"></div>
+    
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Connecting to live streams...</div>
+    </div>
+
+    <div class="container">
+        <div class="live-header">
+            <div class="live-indicator">
+                <div class="live-dot"></div>
+                <span>LIVE STREAMING PLATFORM</span>
+            </div>
+            <h1 class="main-title">RolexCoderZ Live</h1>
+            <p class="stream-subtitle">Interactive live Sessions • Real-time Learning</p>
+            
+            <div class="stream-stats">
+                <div class="stat-item">
+                    <div class="stat-number" style="color: #ff003c;" id="liveCount">0</div>
+                    <div class="stat-label">Live Now</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" style="color: #0066ff;" id="upcomingCount">0</div>
+                    <div class="stat-label">Scheduled</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" style="color: #00cc66;" id="completedCount">0</div>
+                    <div class="stat-label">Recordings</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="live-tabs">
+            <button class="tab-btn active" onclick="switchTab('live')">
+                🔴 Live Streams
+            </button>
+            <button class="tab-btn" onclick="switchTab('upcoming')">
+                ⏳ Upcoming Sessions
+            </button>
+            <button class="tab-btn" onclick="switchTab('completed')">
+                📺 Stream Recordings
+            </button>
+        </div>
+
+        <div id="live" class="tab-content active">
+            <div class='stream-grid'>
+        <div class='stream-card live-card' style='animation-delay: 0s'>
+            <div class='stream-badge live-badge-red'>
+                <div class='status-dot'></div>
+                LIVE NOW
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/1699882266019_Science%20Stream%20%2815%29.png' alt='Straight Lines | L5' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>🔴</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Straight Lines | L5</h3>
+                <p class='channel-name'>⚡ Science 11th (PCMB)</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://dga9kme080o0w.cloudfront.net/out/v1/5c7cfedca3df4fc99ea383b5f2e6a7a8/index_3.m3u8' target='_blank' class='stream-btn live-btn'>
+                    <span>Join Stream</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card live-card' style='animation-delay: 0.15s'>
+            <div class='stream-badge live-badge-red'>
+                <div class='status-dot'></div>
+                LIVE NOW
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/25005272266043_Science%20Stream%20%2817%29.png' alt='Ray Optics | L5' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>🔴</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Ray Optics | L5</h3>
+                <p class='channel-name'>⚡ Science 12th (PCMB)</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://dga9kme080o0w.cloudfront.net/out/v1/4c919c218c124ad1bc7ca946be5c1a53/index_3.m3u8' target='_blank' class='stream-btn live-btn'>
+                    <span>Join Stream</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card live-card' style='animation-delay: 0.3s'>
+            <div class='stream-badge live-badge-red'>
+                <div class='status-dot'></div>
+                LIVE NOW
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/70325472266018_Humanities%20Stream%20%2824%29.png' alt='Judiciary | L3' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>🔴</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Judiciary | L3</h3>
+                <p class='channel-name'>⚡ Humanities 11th</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://dga9kme080o0w.cloudfront.net/out/v1/e0d51a0b313543b6948d336745fd3ca7/index_3.m3u8' target='_blank' class='stream-btn live-btn'>
+                    <span>Join Stream</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card live-card' style='animation-delay: 0.45s'>
+            <div class='stream-badge live-badge-red'>
+                <div class='status-dot'></div>
+                LIVE NOW
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/42387742266077_Science%20Stream%20%2820%29.png' alt='Work, Power, and Energy L3' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>🔴</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Work, Power, and Energy L3</h3>
+                <p class='channel-name'>⚡ AARAMBH 2.O  9th  BATCH 25-26</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d133w6ldrek1er.cloudfront.net/out/v1/f15d86916b1f404baeb09967b920d86a/index_3.m3u8' target='_blank' class='stream-btn live-btn'>
+                    <span>Join Stream</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card live-card' style='animation-delay: 0.6s'>
+            <div class='stream-badge live-badge-red'>
+                <div class='status-dot'></div>
+                LIVE NOW
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/44097682266084_App%20Thumbnails%20All%20Teachers%20%284%29.png' alt='Making Of The Global World L1' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>🔴</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Making Of The Global World L1</h3>
+                <p class='channel-name'>⚡ AARAMBH BATCH 25-26</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://dga9kme080o0w.cloudfront.net/out/v1/90ab1354cfcd4c5b83cf78a87d96041e/index_3.m3u8' target='_blank' class='stream-btn live-btn'>
+                    <span>Join Stream</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div></div>        </div>
+
+        <div id="upcoming" class="tab-content">
+            <div class='no-content'><div class='error-icon'>🎥</div><h3>No Live Classes Available</h3><p>No classes are currently live. Check upcoming sessions or come back later!</p></div>        </div>
+
+        <div id="completed" class="tab-content">
+            <div class='stream-grid'>
+        <div class='stream-card completed-card' style='animation-delay: 0s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/41652722266023_Science%20Stream%20%2816%29.png' alt='Microbes in Human Welfare | L1' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Microbes in Human Welfare | L1</h3>
+                <p class='channel-name'>⚡ Science 12th (PCMB)</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4532640/175630485224703740487/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 0.15s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/23199842265958_Humanities%20Stream%20%2821%29.png' alt='Climate | L3' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Climate | L3</h3>
+                <p class='channel-name'>⚡ Humanities 11th</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4532516/175629926151476974485/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 0.3s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/39525952266015_Science%20Stream%20%2814%29.png' alt='Some Basic Principles &amp; Techniques In Organic Chemistry | L7' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Some Basic Principles &amp; Techniques In Organic Chemistry | L7</h3>
+                <p class='channel-name'>⚡ Science 11th (PCMB)</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4532511/175629914740992764802/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 0.45s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/27421752266133_Commerce%20Stream%20%283%29.png' alt='Small business and Enterprises | L2' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Small business and Enterprises | L2</h3>
+                <p class='channel-name'>⚡ Commerce 11th </p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4532505/175629903772892266688/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 0.6s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/41424872266081_Science%20Stream%20%2819%29.png' alt='Electricity Doubt' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Electricity Doubt</h3>
+                <p class='channel-name'>⚡ AARAMBH BATCH 25-26</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4532504/175629899455198929414/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 0.75s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/61432592266094_Science%20Stream%20%2818%29.png' alt='LPP | L1' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>LPP | L1</h3>
+                <p class='channel-name'>⚡ Science 12th (PCMB)</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4532493/175629856556095373082/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 0.9s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/1008902266072_App%20Thumbnails%20All%20Teachers%20%285%29.png' alt='Nazism and the rise of hitler L7' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Nazism and the rise of hitler L7</h3>
+                <p class='channel-name'>⚡ AARAMBH 2.O  9th  BATCH 25-26</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4532486/175629841014367125088/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 1.05s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/30749962264927_Humanities%20Stream%20%281%29.png' alt='Climate | L2' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Climate | L2</h3>
+                <p class='channel-name'>⚡ Humanities 11th</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4531498/175622398620566974485/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 1.2s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/70093052264970_Science%20Stream%20%2812%29.png' alt='Applications Of Integrals | L2' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Applications Of Integrals | L2</h3>
+                <p class='channel-name'>⚡ Science 12th (PCMB)</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4531486/175622341287425373082/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 1.35s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/30591412265014_App%20Thumbnails%20All%20Teachers%20%283%29.png' alt='Nazism and the rise of hitler L6' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Nazism and the rise of hitler L6</h3>
+                <p class='channel-name'>⚡ AARAMBH 2.O  9th  BATCH 25-26</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4531480/175622323852977125088/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 1.5s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/19397592264962_Science%20Stream%20%2810%29.png' alt='Some Basic Principles &amp; Techniques In Organic Chemistry | L6' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Some Basic Principles &amp; Techniques In Organic Chemistry | L6</h3>
+                <p class='channel-name'>⚡ Science 11th (PCMB)</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4531477/175622305139122764802/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 1.65s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/75132242264966_Commerce%20Stream%20%281%29.png' alt='Small business and Enterprises | L1' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Small business and Enterprises | L1</h3>
+                <p class='channel-name'>⚡ Commerce 11th </p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4531476/175622304162882266688/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 1.8s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/12285102264955_Science%20Stream%20%289%29.png' alt='Cell Cycle and Cell Division | L3' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Cell Cycle and Cell Division | L3</h3>
+                <p class='channel-name'>⚡ Science 11th (PCMB)</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4531390/175621766484443740487/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 1.95s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/14765402264922_Humanities%20Stream.png' alt='Judiciary | L2' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Judiciary | L2</h3>
+                <p class='channel-name'>⚡ Humanities 11th</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4531189/175621292925199371876/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 2.1s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/64997732265004_Science%20Stream%20%2812%29.png' alt='Work, Power, and Energy L2' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Work, Power, and Energy L2</h3>
+                <p class='channel-name'>⚡ AARAMBH 2.O  9th  BATCH 25-26</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4531182/175621274593798929414/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 2.25s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/55261742264965_Science%20Stream%20%2811%29.png' alt='Ray Opitcs | L4' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Ray Opitcs | L4</h3>
+                <p class='channel-name'>⚡ Science 12th (PCMB)</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4531171/175621235759205910848/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 2.4s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/8587152265025_App%20Thumbnails%20All%20Teachers%20%282%29.png' alt='Money and credit L5 + Doubt ' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Money and credit L5 + Doubt </h3>
+                <p class='channel-name'>⚡ AARAMBH BATCH 25-26</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4531161/175621178486877125088/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 2.55s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/28662932263573_Humanities%20Stream%20%2819%29.png' alt='Climate | L1' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Climate | L1</h3>
+                <p class='channel-name'>⚡ Humanities 11th</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4530134/175613834373326974485/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 2.7s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/46773962263789_Science%20Stream%20%285%29.png' alt='Applications Of Integrals | L1' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Applications Of Integrals | L1</h3>
+                <p class='channel-name'>⚡ Science 12th (PCMB)</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4530131/175613790456305373082/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 2.85s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/31110312263765_Science%20Stream%20%283%29.png' alt='Some Basic Principles &amp; Techniques In Organic Chemistry | L5' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Some Basic Principles &amp; Techniques In Organic Chemistry | L5</h3>
+                <p class='channel-name'>⚡ Science 11th (PCMB)</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4530125/175613685365492764802/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 3s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/64874512263860_App%20Thumbnails%20All%20Teachers%20%281%29.png' alt='Nazism and The Rise of Hitler L5' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Nazism and The Rise of Hitler L5</h3>
+                <p class='channel-name'>⚡ AARAMBH 2.O  9th  BATCH 25-26</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4530124/175613669652237125088/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 3.15s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/21762372263870_Science%20Stream%20%286%29.png' alt='Triangles - L4' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Triangles - L4</h3>
+                <p class='channel-name'>⚡ AARAMBH BATCH 25-26</p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4530123/175613667266088752407/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div>
+        <div class='stream-card completed-card' style='animation-delay: 3.3s'>
+            <div class='stream-badge live-badge-green'>
+                <div class='status-dot'></div>
+                RECORDED
+            </div>
+            <div class='card-thumbnail'>
+                <img src='https://dxixtlyravvxx.cloudfront.net/540/admin_v1/file_manager/videos/74036892263768_Commerce%20Stream%20%287%29.png' alt='Gullak | Practice Paper - 7' loading='lazy'>
+                <div class='stream-overlay'>
+                    <div class='play-button'>
+                        <div class='play-icon'>📺</div>
+                    </div>
+                </div>
+            </div>
+            <div class='stream-info'>
+                <h3 class='stream-title'>Gullak | Practice Paper - 7</h3>
+                <p class='channel-name'>⚡ Commerce 11th </p>
+                <a href='https://www.rolexcoderz.xyz/Player/?url=https://d274dp7v20n4nf.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4530119/175613632841042266688/index_3.m3u8' target='_blank' class='stream-btn completed-btn'>
+                    <span>Watch Replay</span>
+                    <div class='btn-shine'></div>
+                </a>
+            </div>
+        </div></div>        </div>
+    </div>
+
+    <script>
+      
+        function switchTab(tabName) {
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+           
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            
+            document.getElementById(tabName).classList.add('active');
+            
+            
+            event.target.classList.add('active');
+        }
+
+       
+        function animateCounter(elementId, targetValue) {
+            const element = document.getElementById(elementId);
+            let current = 0;
+            const increment = targetValue / 20;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= targetValue) {
+                    element.textContent = targetValue;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current);
+                }
+            }, 50);
+        }
+
+       
+        window.addEventListener('load', () => {
+            
+            const liveCount = 5;
+            const upcomingCount = 0;
+            const completedCount = 23;
+            
+            // Animate stats
+            setTimeout(() => {
+                animateCounter('liveCount', liveCount);
+                animateCounter('upcomingCount', upcomingCount);
+                animateCounter('completedCount', completedCount);
+            }, 1000);
+            
+            // Hide loading overlay
+            setTimeout(() => {
+                const loadingOverlay = document.getElementById('loadingOverlay');
+                loadingOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                }, 500);
+            }, 1200);
+        });
+
+        
+        setInterval(() => {
+            if (document.querySelector('.tab-content.active').id === 'live') {
+                window.location.reload();
+            }
+        }, 60000);
+    </script>
+</body>
+</html>
